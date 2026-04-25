@@ -59,7 +59,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               <div className="space-y-3">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-[#888]">Context / Engine Launch</span>
                 <h2 className="text-5xl font-serif italic text-white leading-tight">Tell us about your business.</h2>
-                <p className="text-[#888] font-light">We need the DNA basics to start the discovery process.</p>
+                <p className="text-[#888] font-light">Mapping your core operational DNA to initialize the subjective discovery sequence.</p>
               </div>
 
               <div className="space-y-8">
