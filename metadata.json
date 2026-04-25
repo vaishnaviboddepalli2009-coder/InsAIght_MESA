@@ -1,0 +1,6 @@
+{
+  "name": "Adaptive QSR Insights",
+  "description": "A subjective analytics engine for QSR owners that uses LLMs to discover and track unique business KPIs based on menu and goals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
