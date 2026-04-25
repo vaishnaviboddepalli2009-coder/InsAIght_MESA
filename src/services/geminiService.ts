@@ -1,9 +1,21 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { BusinessProfile, KPIProposal, Insight, POSData } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not defined. Please ensure it is set in your environment.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export async function discoverKPIs(profile: BusinessProfile): Promise<KPIProposal[]> {
+  const ai = getAI();
   const prompt = `
     Analyze this business profile and suggest 4 subjective, non-generic KPIs that would actually drive growth for this specific niche.
     
@@ -53,6 +65,7 @@ export async function generateAdaptiveInsights(
   kpis: KPIProposal[],
   data: POSData[]
 ): Promise<Insight[]> {
+  const ai = getAI();
   const prompt = `
     Based on the business profile, identified subjective KPIs, and recent POS data, generate 3-4 actionable insights.
     
