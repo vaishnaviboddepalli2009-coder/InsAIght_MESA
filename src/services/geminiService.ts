@@ -5,9 +5,10 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAI() {
   if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || "";
     if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "") {
-      throw new Error("GEMINI_API_KEY is missing. Please set it in the Secrets panel in AI Studio.");
+      console.error("Gemini API Key is missing. Current key value:", apiKey);
+      throw new Error("GEMINI_API_KEY_MISSING: Please configure your Gemini API Key in the AI Studio Secrets panel.");
     }
     aiInstance = new GoogleGenAI({ apiKey });
   }

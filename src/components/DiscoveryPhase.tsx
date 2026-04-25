@@ -20,29 +20,69 @@ const ENGINE_STEPS = [
 export default function DiscoveryPhase({ profile, onDiscoveryComplete }: DiscoveryPhaseProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function startDiscovery() {
-      // Simulate visual steps
-      for (let i = 0; i < ENGINE_STEPS.length; i++) {
-        if (!mounted) return;
-        setCurrentStep(i);
-        await new Promise(r => setTimeout(r, 1200));
-        setCompletedSteps(prev => [...prev, ENGINE_STEPS[i].id]);
-      }
+      try {
+        // Simulate visual steps
+        for (let i = 0; i < ENGINE_STEPS.length; i++) {
+          if (!mounted) return;
+          setCurrentStep(i);
+          await new Promise(r => setTimeout(r, 1200));
+          setCompletedSteps(prev => [...prev, ENGINE_STEPS[i].id]);
+        }
 
-      // Real call to Gemini
-      const kpis = await discoverKPIs(profile);
-      if (mounted) {
+        // Real call to Gemini
+        const kpis = await discoverKPIs(profile);
+        
+        if (!mounted) return;
+        
+        if (kpis.length === 0) {
+          throw new Error("Could not synthesize KPIs. Please check your AI Studio secrets configuration.");
+        }
+
         onDiscoveryComplete(kpis);
+      } catch (err: any) {
+        if (mounted) {
+          console.error("Discovery Engine Failed:", err);
+          setError(err.message || "An unexpected error occurred during synthesis.");
+        }
       }
     }
 
     startDiscovery();
     return () => { mounted = false; };
   }, [profile, onDiscoveryComplete]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 font-sans text-[#e0e0e0]">
+        <div className="max-w-md w-full bg-[#111] border border-red-900/30 p-8 rounded-sm text-center space-y-6">
+          <div className="inline-flex p-4 rounded-full bg-red-500/10 text-red-500">
+            <Sparkles className="w-8 h-8 opacity-50" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-serif italic text-white leading-tight">Engine Interrupted</h2>
+            <p className="text-red-400 text-sm font-medium tracking-wide">Synthesis Aborted</p>
+          </div>
+          <p className="text-[#888] text-sm leading-relaxed">
+            {error.includes("GEMINI_API_KEY_MISSING") 
+              ? "Your environment is missing the core logic key. Ensure GEMINI_API_KEY is configured in the AI Studio Secrets panel."
+              : error}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full py-4 bg-white text-black text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-[#c9a66b] transition-colors"
+          >
+            Re-Initialize System
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 font-sans text-[#e0e0e0] overflow-hidden">
